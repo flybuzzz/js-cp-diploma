@@ -1,58 +1,47 @@
-let days = Array.from(document.getElementsByClassName("page-nav__day")); // устанавливаем дату в список выше
-let date = new Date();
-date.setDate(date.getDate() - 1);
+document.addEventListener('DOMContentLoaded', () => {
+  updateCalendar();
+  updateData();
+});
 
-days.forEach(element => { // дата на следующие дни
-  date.setDate(date.getDate() +1);
-  element.children[1].textContent = date.getDate();
-  switch(Number(date.getDay())){
-    case 1:{
-      element.children[0].textContent = "Пн";
-      break;
-    }
-    case 2:{
-      element.children[0].textContent = "Вт";
-      break;
-    }
-    case 3:{
-      element.children[0].textContent = "Ср";
-      break;
-    }
-    case 4:{
-      element.children[0].textContent = "Чт";
-      break;
-    }
-    case 5:{
-      element.children[0].textContent = "Пт";
-      break;
-    }
-    case 6:{
-      element.children[0].textContent = "Сб";
-      element.classList.add("page-nav__day_weekend");
-      break;
-    }
-    case 0:{
-      element.children[0].textContent = "Вс";
-      element.classList.add("page-nav__day_weekend");
-      break;
-    }
-    default:
-      break;
-  }
-})
+function updateCalendar() {
+  const currentTimestamp = Date.now();
+  const currentDay = new Date(currentTimestamp);
+  let nextDay = currentDay;
+  const options = {
+      weekday: 'short',
+  };
 
-let currentDate = new Date();// текущая дата
-let selectDay = new Date();// день который выбрали 
-let navDay = document.getElementsByClassName("page-nav")[0];
-navDay.getElementsByClassName("page-nav__day_chosen")[0].classList.toggle("page-nav__day_chosen");// выключаем выбранный день по умолчанию 
-navDay.children[0].classList.toggle("page-nav__day_chosen")// сегодняшний день делаем активным
+  const pageNavDay = document.querySelectorAll('.page-nav__day');
+  let navDay = new Date()
+      navDay = Number(navDay.getDate())
 
-let pageNavDays = Array.from(document.getElementsByClassName("page-nav__day"));// смена текущей даты
-pageNavDays.forEach((e,index) => {
-  e.onclick = function () {
-    document.getElementsByClassName("page-nav__day_chosen")[0].classList.toggle("page-nav__day_chosen");// выключаем текущий
-    e.classList.toggle("page-nav__day_chosen");// ставим выбранный 
-    selectDay.setDate(currentDate.getDate()+index);
-    setFilms(JSON.parse(localStorage.getItem("info")),selectDay);// функция из udateFilm.js обновляем всю информацию под выбранную дату
-  }
-})
+  pageNavDay.forEach((element, index) => {
+  
+  element.dataset.dayTimeStamp = nextDay.setHours(0, 0, 0, 0);
+
+      let dayWeek = nextDay.getDay();
+      let dayWeekText = nextDay.toLocaleDateString('ru-RU', options);
+
+      const pageNavDayWeek = element.querySelector('.page-nav__day-week');
+      const pageNavDayNumber = element.querySelector('.page-nav__day-number');
+
+      pageNavDayWeek.textContent = dayWeekText;
+      pageNavDayNumber.textContent = nextDay.getDate();
+
+      if (dayWeek === 0 || dayWeek === 6) {
+          element.classList.add('page-nav__day_weekend');
+      } else {
+          element.classList.remove('page-nav__day_weekend');
+      }
+      if (navDay === navDay+index) {
+          element.dataset.dayTimeStamp = nextDay.setHours(0, 0, 0, 0);
+          element.classList.add('page-nav__day_today');
+          element.classList.add('page-nav__day_chosen');
+      }
+      nextDay.setDate(nextDay.getDate() + 1);
+  });
+}
+
+function updateData() {
+  createRequest('event=update', 'MAIN', updateHtmlMain);
+};
